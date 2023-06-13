@@ -1,5 +1,9 @@
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
 import { mobile } from "../responsive";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { login } from "../redux/auth";
 
 const Container = styled.div`
   width: 100vw;
@@ -48,25 +52,54 @@ const Button = styled.button`
   color: white;
   cursor: pointer;
   margin-bottom: 10px;
+  &:disabled{
+    color:green;
+    cursor:not-allowed;
+  }
 `;
 
-const Link = styled.a`
+const RLink = styled.a`
   margin: 5px 0px;
   font-size: 12px;
   text-decoration: underline;
   cursor: pointer;
 `;
+const NoStyleLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`;
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+
+  const handleEmailChange = (e) =>{
+    e.preventDefault();
+    setEmail(e.target.value);
+  }
+
+  const handlePasswordChange = (e) => {
+    e.preventDefault();
+    setPassword(e.target.value);
+  }
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    login(dispatch, {email, password})
+  }
+
   return (
     <Container>
       <Wrapper>
         <Title>LOGARE</Title>
         <Form>
-          <Input placeholder="email" />
-          <Input placeholder="parolă" />
-          <Button>CONECTEAZA-TE</Button>
-          <Link>CREAZĂ UN CONT NOU</Link>
+          <Input onChange = {handleEmailChange} placeholder="email" />
+          <Input onChange = {handlePasswordChange} type="password" placeholder="parolă" />
+          <Button onClick={handleClick} >CONECTEAZA-TE</Button>
+          <NoStyleLink to={"/register"}>
+            <RLink>CREAZĂ UN CONT NOU</RLink>
+          </NoStyleLink>
         </Form>
       </Wrapper>
     </Container>

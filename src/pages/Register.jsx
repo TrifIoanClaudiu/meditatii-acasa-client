@@ -3,6 +3,10 @@ import { mobile } from "../responsive";
 import { localities } from "../utils";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useState } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/auth";
+import { isEmail, isPasswordStrong } from "../utils";
 
 const Container = styled.div`
   width: 100vw;
@@ -39,11 +43,36 @@ const Form = styled.form`
   flex-wrap: wrap;
 `;
 
-const Input = styled.input`
+const InputWrapper = styled.div`
   flex: 1;
   min-width: 40%;
   margin: 20px 10px 0px 0px;
+  position: relative;
+`;
+
+const Input = styled.input`
+  width: 100%;
   padding: 10px;
+  border: ${({ valid }) => (valid ? "1px solid #ccc" : "1px solid red")};
+  color: ${({ valid }) => (valid ? "#333" : "red")};
+`;
+
+const ErrorMessage = styled.span`
+  visibility: hidden;
+  background-color: red;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+
+  ${InputWrapper}:hover & {
+    visibility: visible;
+  }
 `;
 
 const SelectWrapper = styled.div`
@@ -94,16 +123,86 @@ const Button = styled.button`
 
 const Register = () => {
   const [selectedLocality, setSelectedLocality] = useState("");
+  const [prenume, setPrenume] = useState("");
+  const [nume, setNume] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailValid, setEmailValid] = useState(true);
+  const [password, setPassword] = useState("");
+  const [passwordValid, setPasswordValid] = useState(true);
+  const dispatch = useDispatch();
+
+  const handleEmailChange = (event) => {
+    const value = event.target.value;
+    setEmail(value);
+    setEmailValid(isEmail(value));
+  };
+
+  const handlePasswordChange = (event) => {
+    const value = event.target.value;
+    setPassword(value);
+    setPasswordValid(isPasswordStrong(value));
+  };
+
+  const handleClick = async (event) => {
+    event.preventDefault();
+    const formData = {
+      password,
+      prenume,
+      nume,
+      email,
+      localitate: selectedLocality,
+    };
+    try {
+      await axios.post(`http://localhost:4000/auth/register`, { formData });
+      login(dispatch, { email, password });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <Container>
       <Wrapper>
         <Title>CREAZĂ-ȚI UN CONT</Title>
         <Form>
-          <Input placeholder="prenume" />
-          <Input placeholder="nume" />
-          <Input placeholder="email" />
-          <Input placeholder="parolă" />
+          <InputWrapper>
+            <Input
+              onChange={(event) => setPrenume(event.target.value)}
+              placeholder="prenume"
+              valid={true}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Input
+              onChange={(event) => setNume(event.target.value)}
+              placeholder="nume"
+              valid={true}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Input
+              onChange={handleEmailChange}
+              placeholder="email"
+              valid={emailValid}
+            />
+            {!emailValid && (
+              <ErrorMessage>Please enter a valid email address</ErrorMessage>
+            )}
+          </InputWrapper>
+          <InputWrapper>
+            <Input
+              onChange={handlePasswordChange}
+              placeholder="parolă"
+              type="password"
+              valid={passwordValid}
+            />
+            {!passwordValid && (
+              <ErrorMessage>
+                Password must be at least 8 characters long and contain a
+                combination of letters, numbers, and special characters
+              </ErrorMessage>
+            )}
+          </InputWrapper>
           <SelectWrapper>
             <Select
               value={selectedLocality}
@@ -125,7 +224,7 @@ const Register = () => {
           <Agreement>
             Prin crearea unui cont, sunteți de acord cu prelucrarea datelor personale in comformitate cu <b>POLITICILE DE CONFIDENȚIALITATE</b>
           </Agreement>
-          <Button>CREAZĂ</Button>
+          <Button onClick={handleClick}>CREAZĂ</Button>
         </Form>
       </Wrapper>
     </Container>

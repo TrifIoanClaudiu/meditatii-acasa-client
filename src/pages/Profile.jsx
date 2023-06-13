@@ -3,6 +3,12 @@ import styled from "styled-components";
 import { mobile } from "../responsive";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { localities } from "../utils";
+import Toolbar from "../components/Toolbar";
+import axios from "axios";
+import { update } from "../redux/userRedux";
+import { useDispatch } from "react-redux";
+import DeleteModal from "../components/DeleteModal";
+import PasswordModal from "../components/PasswordModal";
 
 const Container = styled.div`
   width: 100vw;
@@ -92,47 +98,177 @@ const Link = styled.a`
   cursor: pointer;
 `;
 
-const updateUserData = () => {
+const ModalWrapper = styled.div`
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  visibility: ${(props) => (props.show ? "visible" : "hidden")};
+  transition: opacity 0.3s ease;
+`;
 
-}
+const ModalContent = styled.div`
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+`;
 
-const Profile = () => {
-  const [nume, setNume] = useState("nume");
-  const [prenume, setPrenume] = useState("prenume");
-  const [username, setUsername] = useState(prenume + ' ' + nume)
-  const [selectedLocality, setSelectedLocality] = useState("");
+const SuccessModal = ({ message }) => {
+  return (
+    <ModalWrapper show>
+      <ModalContent>
+        <p>{message}</p>
+      </ModalContent>
+    </ModalWrapper>
+  );
+};
+
+const Profile = ({ user }) => {
+  const [nume, setNume] = useState("");
+  const [email, setEmail] = useState("");
+  const [prenume, setPrenume] = useState("");
+  const [selectedLocality, setSelectedLocality] = useState(user.localitate);
+  const dispatch = useDispatch();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [passwordChangeMessage, setPasswordChangeMessage] = useState("");
+
+  const openPasswordModal = () => {
+    setShowPasswordModal(true);
+  };
+
+  const closePasswordModal = () => {
+    setShowPasswordModal(false);
+  };
+
+  const handlePasswordChange = async (oldPassword, newPassword) => {
+    try {
+      console.log(`http://localhost:4000/users/password/${user._id}`);
+      await axios.put(
+        `http://localhost:4000/users/password/${user._id}`,
+        { oldPassword, newPassword },
+        {
+          headers: {
+            token: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      setShowSuccessModal(true);
+      setPasswordChangeMessage("Parola a fost schimbată cu succes")
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 1500);
+    } catch (err) {
+      console.log(err);
+      setShowSuccessModal(true);
+      setPasswordChangeMessage("Parola veche este incorectă")
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 1500);
+    }
+  };
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+  };
+
+  const deleteAccount = () => {
+    // Implement your delete account logic here
+  };
+
+  const updateUserData = async (event) => {
+    event.preventDefault();
+    const payload = { nume, prenume, email, selectedLocality };
+    try {
+      const res = await axios.put(
+        `http://localhost:4000/users/update/${user._id}`,
+        payload,
+        {
+          headers: {
+            token: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      res.data.accessToken = user.accessToken;
+      dispatch(update(res.data));
+      window.location.reload();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <Container>
-      <Wrapper>
-        <Title>{username}</Title>
-        <Form>
-          <Input placeholder="email" />
-          <Input placeholder="nume" />
-          <Input placeholder="prenume" />
-          <SelectWrapper>
-            <Select
-              value={selectedLocality}
-              onChange={(e) => setSelectedLocality(e.target.value)}
-            >
-              <Option value="" disabled selected hidden>
-                Localitate
-              </Option>
-              {localities.map((locality, index) => (
-                <Option key={index} value={locality}>
-                  {locality}
+    <>
+      <Toolbar />
+      <Container>
+        <Wrapper>
+          <Title>
+            {user.prenume} {user.nume}
+          </Title>
+          <Form>
+            <Input
+              placeholder="email"
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Input
+              placeholder="nume"
+              onChange={(event) => setNume(event.target.value)}
+            />
+            <Input
+              placeholder="prenume"
+              onChange={(event) => setPrenume(event.target.value)}
+            />
+            <SelectWrapper>
+              <Select
+                value={selectedLocality}
+                onChange={(e) => setSelectedLocality(e.target.value)}
+              >
+                <Option value="" disabled selected hidden>
+                  Localitate
                 </Option>
-              ))}
-            </Select>
-            <ArrowIcon>
-              <ArrowDropDownIcon />
-            </ArrowIcon>
-          </SelectWrapper>
-          <Button onClick={updateUserData}>Actualizează datele</Button>
-          <Link>Schimbă parola</Link>
-        </Form>
-      </Wrapper>
-    </Container>
+                {localities.map((locality, index) => (
+                  <Option key={index} value={locality}>
+                    {locality}
+                  </Option>
+                ))}
+              </Select>
+              <ArrowIcon>
+                <ArrowDropDownIcon />
+              </ArrowIcon>
+            </SelectWrapper>
+            <Button onClick={updateUserData}>Actualizează datele</Button>
+            <Link onClick={openPasswordModal}>Schimbă parola</Link>
+            <Link onClick={openDeleteModal}>Șterge contul</Link>
+          </Form>
+          {showPasswordModal && (
+            <PasswordModal
+              closeModal={closePasswordModal}
+              handlePasswordChange={handlePasswordChange}
+            />
+          )}
+          {showDeleteModal && (
+            <DeleteModal
+              closeModal={closeDeleteModal}
+              deleteAccount={deleteAccount}
+            />
+          )}
+        </Wrapper>
+        {showSuccessModal && (
+          <SuccessModal message={passwordChangeMessage} />
+        )}
+      </Container>
+    </>
   );
 };
 
