@@ -21,7 +21,7 @@ const ToolbarContainer = styled.div`
 
 const IconsContainer = styled.div`
   display: flex;
-  gap: 8px; /* Adjust the gap value to your preference */
+  gap: 8px;
 `;
 
 const Toolbar = () => {

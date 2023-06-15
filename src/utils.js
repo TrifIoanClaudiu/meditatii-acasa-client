@@ -3,7 +3,6 @@ export const isEmail = (email) => {
   return emailRegex.test(email);
 };
 
-export const localities = ["Sibiu", "Cluj"];
 
 export const isPasswordStrong = (password) => {
   // At least 8 characters, at most 20 characters
@@ -12,7 +11,9 @@ export const isPasswordStrong = (password) => {
   // Contains at least one digit
   // Contains at least one special character (!@#$%^&*)
   var regex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,20}$/;
-
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,20}$/;
+  
   return regex.test(password);
 };
+
+export const localities = ["Sibiu", "Cluj"];
