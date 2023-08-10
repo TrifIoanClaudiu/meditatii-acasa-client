@@ -189,7 +189,7 @@ const Profile = ({ user }) => {
 
   const updateUserData = async (event) => {
     event.preventDefault();
-    const payload = { nume, prenume, email, selectedLocality };
+    const payload = { nume, prenume, email, localitate: selectedLocality };
     try {
       const res = await axios.put(
         `http://localhost:4000/users/update/${user._id}`,

@@ -17,3 +17,4 @@ export const isPasswordStrong = (password) => {
 };
 
 export const localities = ["Sibiu", "Cluj"];
+export const materii = ["Toate", "Română", "Matematică", "Informatică"];

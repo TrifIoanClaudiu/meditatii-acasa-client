@@ -4,6 +4,7 @@ import axios from "axios";
 import TeacherCard from "../components/TeacherCard";
 import { Link } from "react-router-dom";
 import Toolbar from "../components/Toolbar";
+import { materii, localities } from "../utils";
 
 const TeachersContainer = styled.div`
   margin-top: 50px;
@@ -13,15 +14,21 @@ const TeachersContainer = styled.div`
 
 const TabBar = styled.div`
   display: flex;
-  justify-content: space-between; /* Adjust alignment */
-  align-items: center; /* Adjust alignment */
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-  background-color: #f2f2f2; /* Set the background color */
+  background-color: #f2f2f2;
 `;
 
 const Dropdown = styled.select`
   padding: 10px;
   font-size: 16px;
+`;
+
+const SearchInput = styled.input`
+  padding: 10px;
+  font-size: 16px;
+  width: 400px;
 `;
 
 const TabItem = styled.button`
@@ -67,14 +74,12 @@ const Teachers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [localitate, setLocalitate] = useState("Sibiu");
   const [materie, setMaterie] = useState("");
-  const materii = ["Toate", "Română", "Matematică", "Informatică"];
-  const localitati = ["Cluj", "Sibiu"];
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const payload = { localitate };
+    const payload = { localitate, materie, searchQuery }; 
     async function fetchTeachers() {
       try {
-        if (materie) payload.materie = materie;
         const response = await axios.request({
           method: "GET",
           url: "http://localhost:4000/teachers/",
@@ -87,14 +92,17 @@ const Teachers = () => {
       }
     }
     fetchTeachers();
-  }, [localitate, materie]);
-
+  }, [localitate, materie, searchQuery]); 
   const handleMaterieChange = (selectedMaterie) => {
     selectedMaterie === "Toate" ? setMaterie("") : setMaterie(selectedMaterie);
   };
 
   const handleLocalitateChange = (e) => {
     setLocalitate(e.target.value);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -114,8 +122,14 @@ const Teachers = () => {
             ))}
           </div>
           <div>
+          <SearchInput
+              type="text"
+              placeholder="Căutare după nume"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
             <Dropdown value={localitate} onChange={handleLocalitateChange}>
-              {localitati.map((localitate) => (
+              {localities.map((localitate) => (
                 <option value={localitate} key={localitate}>
                   {localitate}
                 </option>
