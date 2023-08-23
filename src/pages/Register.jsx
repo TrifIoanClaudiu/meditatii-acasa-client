@@ -15,7 +15,7 @@ const Container = styled.div`
       rgba(255, 255, 255, 0.5),
       rgba(255, 255, 255, 0.5)
     ),
-    url("https://rare-gallery.com/uploads/posts/563616-Books-Notebooks.jpg")
+    url("https://www.finestwallpaper.com/uploads/5/7/7/9/5779447/s774058804322417752_p1199_i9_w640.jpeg")
     no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -116,10 +116,15 @@ const Button = styled.button`
   width: 40%;
   border: none;
   padding: 15px 20px;
-  background-color: teal;
+  background-color: ${({ disabled }) => (disabled ? "#ccc" : "teal")};
   color: white;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+
+  &:hover {
+    background-color: ${({ disabled }) => (disabled ? "#ccc" : "darkcyan")};
+  }
 `;
+
 
 const Register = () => {
   const [selectedLocality, setSelectedLocality] = useState("");
@@ -160,6 +165,9 @@ const Register = () => {
     }
   };
 
+  const buttonDisabled = () => {
+    return !(emailValid && passwordValid && prenume && nume && selectedLocality);
+  }
   return (
     <Container>
       <Wrapper>
@@ -224,7 +232,7 @@ const Register = () => {
           <Agreement>
             Prin crearea unui cont, sunteți de acord cu prelucrarea datelor personale in comformitate cu <b>POLITICILE DE CONFIDENȚIALITATE</b>
           </Agreement>
-          <Button onClick={handleClick}>CREAZĂ</Button>
+          <Button onClick={handleClick} disabled={buttonDisabled()} >CREAZĂ</Button>
         </Form>
       </Wrapper>
     </Container>

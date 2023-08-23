@@ -4,6 +4,7 @@ import axios from "axios";
 import TeacherCard from "../components/TeacherCard";
 import { Link } from "react-router-dom";
 import Toolbar from "../components/Toolbar";
+import { useSelector } from "react-redux";
 import { materii, localities } from "../utils";
 
 const TeachersContainer = styled.div`
@@ -70,9 +71,10 @@ const NoStyleLink = styled(Link)`
 `;
 
 const Teachers = () => {
+  const userLocality = useSelector((state) => state.currentUser.localitate);
   const [teachers, setTeachers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [localitate, setLocalitate] = useState("Sibiu");
+  const [localitate, setLocalitate] = useState(userLocality);
   const [materie, setMaterie] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 

@@ -11,7 +11,7 @@ export const isPasswordStrong = (password) => {
   // Contains at least one digit
   // Contains at least one special character (!@#$%^&*)
   var regex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,20}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&_*]{8,20}$/;
   
   return regex.test(password);
 };

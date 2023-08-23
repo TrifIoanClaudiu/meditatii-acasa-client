@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { mobile } from "../responsive";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -68,11 +68,17 @@ const NoStyleLink = styled(Link)`
   text-decoration: none;
   color: inherit;
 `;
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 14px;
+`;
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
+  const error = useSelector((state) => state.error);
 
   const handleEmailChange = (e) =>{
     e.preventDefault();
@@ -97,6 +103,7 @@ const Login = () => {
           <Input onChange = {handleEmailChange} placeholder="email" />
           <Input onChange = {handlePasswordChange} type="password" placeholder="parolă" />
           <Button onClick={handleClick} >CONECTEAZA-TE</Button>
+          {error && <ErrorMessage>Email sau parolă invalidă</ErrorMessage>}
           <NoStyleLink to={"/register"}>
             <RLink>CREAZĂ UN CONT NOU</RLink>
           </NoStyleLink>
